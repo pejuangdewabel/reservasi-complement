@@ -168,6 +168,8 @@ class DashboardController extends Controller
 
         session()->put('codeTicket', $codeAll);
         session()->put('dateTransaksi', $request->dateStart);
+        session()->put('quotaPeople', $request->kuotaTiket);
+        session()->put('quotaVenicle', $request->countVehicle);
 
         $dataHistory = array(
             'jenisid'                       => $jenisid,
@@ -225,7 +227,7 @@ class DashboardController extends Controller
         $kode = array();
 
         $customPaper = array(0, 0, 425.19, 283.80);
-        // $customPaper = array(0, 0, 960.09, 540);
+        $customPaper = array(0, 0, 960.09, 540);
         $filename = "Reservasi Tiket.zip";
         $zip = new ZipArchive();
 
@@ -237,8 +239,10 @@ class DashboardController extends Controller
             // ])->setPaper($customPaper, 'landscape');
 
             $pdf = PDF::loadview('barcode.card', [
-                'value' => $value,
-                'dateVisit' => session()->get('dateTransaksi')
+                'value'         => $value,
+                'dateVisit'     => session()->get('dateTransaksi'),
+                'quotaPeople'   => session()->get('quotaPeople'),
+                'quotaVenicle'  => session()->get('quotaVenicle'),
             ]);
 
             $outputPDF = $pdf->output();

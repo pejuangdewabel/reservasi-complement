@@ -14,8 +14,8 @@
     <div id="app">
         <div class="pagetitle">
             <h1>Generate Tiket Ancol</h1>
-            {{-- <a href="{{ route('downloadBarcode', 1) }}">KLIK</a>
-            <br>
+            <a href="{{ route('downloadBarcode', 1) }}">KLIK</a>
+            {{-- <br>
             <a href="{{ route('backReservasion') }}" class="btn btn-secondary btns-sm">RESET</a> --}}
         </div><!-- End Page Title -->
 

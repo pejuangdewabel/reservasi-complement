@@ -30,7 +30,17 @@
 
     <!-- Template Main CSS File -->
     <link href="{{ asset('assets/css/style.css') }}" rel="stylesheet">
+    {{-- <link rel="stylesheet" href="{{ asset('assets/font/font1.ttf') }}"> --}}
     <style>
+        @font-face {
+            font-family: 'Grenadine MVB Med';
+            src: url('{{ asset('assets/font/font1.ttf') }}');
+        }
+
+        #contoh {
+            font-family: 'Grenadine MVB Med';
+        }
+
         .logo-ancol {
             height: 3em;
             margin-left: auto !important;
@@ -83,7 +93,9 @@
                                             <img src="{{ asset('assets/img/logo/ancol_no_bg.png') }}" alt="logo-ancol"
                                                 srcset="" class="logo-ancol">
                                         </h5>
-                                        <p class="text-center small">Silahkan Masukan Email & Password</p>
+                                        <p class="text-center small" id="contoh">SILAHKAN Silahkan Masukan Email &
+                                            Password
+                                        </p>
                                     </div>
 
                                     <form class="row g-3 needs-validation" novalidate method="POST"

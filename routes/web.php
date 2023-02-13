@@ -46,4 +46,9 @@ Route::group(['prefix' => 'index', 'middleware' => 'auth'], function () {
 
 Route::get('/download', 'Auth\AuthController@generateDownload')->name('download');
 
-Route::get('/testing', 'Testing\TestingController@index')->name('testing');
+Route::get('/testing', function () {
+    return view('barcode.card', [
+        'value' => 'dadadaddwew2',
+        'dateVisit' => '2023/01/12'
+    ]);
+})->name('testing');

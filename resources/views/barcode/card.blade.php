@@ -24,7 +24,17 @@
         }
     </style> --}}
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;1,100;1,300;1,400;1,500&display=swap');
+        /* @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;1,100;1,300;1,400;1,500&display=swap'); */
+        @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700&display=swap');
+
+        @font-face {
+            font-family: 'Grenadine MVB Med';
+            src: url('{{ asset('assets/font/font1.ttf') }}');
+        }
+
+        * {
+            font-family: 'Kanit', sans-serif;
+        }
 
         body {
             position: relative;
@@ -35,8 +45,8 @@
 
         .img-card {
             position: absolute;
-            width: 717px;
-            height: 1276px;
+            width: 710px;
+            height: 1056px;
             left: 0px;
             top: 0px;
         }
@@ -52,47 +62,77 @@
 
         .barcode {
             position: absolute;
-            width: 325px;
-            height: 333px;
-            left: 196px;
-            top: 61px;
+            width: 279px;
+            height: 286px;
+            left: 220px;
+            top: 20px;
         }
 
         .kode {
             position: absolute;
             width: 468px;
-            height: 30px;
+            height: 43px;
             left: 125px;
-            top: 413px;
+            top: 280px;
 
-            font-family: 'Roboto', sans-serif;
-            font-style: normal;
-            font-weight: 700;
+            /* font-family: 'Kanit', sans-serif; */
+
+            font-family: 'Grenadine MVB Med';
+            /* font-style: normal;
+            font-weight: 700; */
             font-size: 26px;
-            line-height: 30px;
+            line-height: 43px;
+
             text-align: center;
 
-            color: #172F89;
+            color: #0033A0;
         }
 
         .judul {
             position: absolute;
             width: 468px;
-            height: 30px;
-            left: 240px;
-            top: 504px;
+            height: 83px;
+            left: 214px;
+            top: 356px;
 
-            font-family: 'Roboto', sans-serif;
-            font-style: normal;
-            font-weight: 700;
-            font-size: 26px;
-            line-height: 30px;
+            font-family: 'Grenadine MVB Med';
+            font-size: 50px;
+            line-height: 83px;
             text-align: center;
-            color: #172F89;
+            color: #0033A0;
+        }
+
+        .judul2 {
+            position: absolute;
+            width: 468px;
+            height: 40px;
+            left: 125px;
+            top: 508px;
+
+            font-family: 'Grenadine MVB Med';
+            font-size: 24px;
+            line-height: 40px;
+            text-align: center;
+            color: #FFFFFF;
+        }
+
+        .judul3 {
+            position: absolute;
+            width: 468px;
+            height: 33px;
+            left: 125px;
+            top: 790px;
+
+            font-family: 'Grenadine MVB Med';
+            font-size: 20px;
+            line-height: 33px;
+            text-align: center;
+
+            color: #FFFFFF;
         }
 
         .column1 {
-            position: absolute;
+            /* position: absolute;
             width: 205px;
             height: 85px;
             left: 240px;
@@ -103,7 +143,23 @@
             font-weight: 400;
             font-size: 18px;
             line-height: 21px;
-            color: #172F89;
+            color: #172F89; */
+
+            position: absolute;
+            width: 344px;
+            height: 219px;
+            left: 69px;
+            top: 550px;
+
+            font-family: 'Grenadine MVB Med';
+            font-size: 20px;
+            line-height: 20px;
+
+            color: #FDFDFF;
+        }
+
+        .column1 ol li {
+            font-family: 'Grenadine MVB Med';
         }
 
         .column2 {
@@ -124,99 +180,105 @@
         .paragraf1 {
             position: absolute;
             width: 635px;
-            height: 138px;
-            left: 44px;
-            top: 670px;
+            height: 72px;
+            left: 69px;
+            top: 830px;
 
-            font-family: 'Roboto', sans-serif;
-            font-style: normal;
-            font-weight: 400;
-            font-size: 12px;
-            line-height: 21px;
-            letter-spacing: 1px;
+            font-family: 'Grenadine MVB Med';
+            font-size: 20px;
+            line-height: 20px;
 
             color: #FFFDFD;
         }
 
-        .paragraf2 {
+        .paragraf1 ol li {
+            font-family: 'Grenadine MVB Med';
+        }
+
+        /* .paragraf2 {
             position: absolute;
+            font-family: 'Grenadine MVB Med';
             width: 635px;
-            height: 347px;
-            left: 44px;
-            top: 823px;
-
-            font-family: 'Roboto', sans-serif;
-            font-style: normal;
-            font-weight: 400;
-            font-size: 12px;
-            line-height: 21px;
-            letter-spacing: 1px;
-
-            color: #FFFDFD;
-        }
+            height: 124px;
+            left: 69px;
+            top: 948px;
+        } */
     </style>
 </head>
 
 <body>
-    <img src="{{ public_path('/assets/ecard/images/bg-card.jpg') }}" class="img-card">
+    <img src="{{ public_path('/assets/ecard/images/bg-card-v3.jpg') }}" class="img-card">
     {{-- <img src="{{ public_path('/assets/ecard/images/v7_4.png') }}" class="barcode"> --}}
     <img src="data:image/png;base64, {!! base64_encode(QrCode::size(200)->generate($value)) !!} " class="barcode">
     <div class="kode">
         {{ $value }}
     </div>
     <div class="judul">
+        INFLUENCER
+    </div>
+    <div class="judul2">
         AKSES MASUK
     </div>
     <div class="column1">
-        <ul>
+        <ol>
             @if (str_contains($value, 'SW'))
                 <li>Sea World</li>
+            @else
+                <li>---</li>
             @endif
 
             @if (str_contains($value, 'DF'))
                 <li>Dunia Fantasi</li>
+            @else
+                <li>---</li>
             @endif
 
             @if (str_contains($value, 'PG'))
                 <li>PGU Ancol</li>
+            @else
+                <li>---</li>
             @endif
-        </ul>
-    </div>
 
-    <div class="column2">
-        <ul>
             @if (str_contains($value, 'OD'))
                 <li>Ocean Dream Samudra</li>
+            @else
+                <li>---</li>
             @endif
 
             @if (str_contains($value, 'AW'))
                 <li>Atlantis Water Adventures</li>
+            @else
+                <li>---</li>
             @endif
 
             @if (str_contains($value, 'JB'))
                 <li>Jakarta Bird Land</li>
+            @else
+                <li>---</li>
             @endif
-        </ul>
+        </ol>
+    </div>
+    <div class="judul3">
+        SYARAT DAN KETENTUAN
     </div>
     <div class="paragraf1">
-        Syarat dan Ketentuan : <br>
         <ol>
             <li>
                 Eticket berlaku pada tanggal {{ tanggal_indonesia($dateVisit) }}
             </li>
-            <li>
-                Eticket berlaku untuk 1 (satu) kali kunjungan ke Dunia Fantasi dan wajib dijadikan ecard
-            </li>
-            <li>
-                Eticket berlakuk untuk 1 (satu) kali kunjungan ke Ancol
-            </li>
-            <li>
-                Eticket tidak berlaku kendaraan
-            </li>
+            @if (Session::has('quotaVenicle'))
+                <li>
+                    Eticket berlaku {{ $quotaPeople }} orang dan {{ $quotaVenicle }} kendaraan
+                </li>
+            @else
+                <li>
+                    Eticket berlaku {{ $quotaPeople }} orang dan 0 kendaraan
+                </li>
+            @endif
         </ol>
         <br>
     </div>
-    <div class="paragraf2">
+    {{-- <div class="paragraf2">
         Cara Penggunaan Eticket : <br>
         <ol>
             <li>
@@ -246,7 +308,7 @@
             </li>
         </ol>
         <br>
-    </div>
+    </div> --}}
 </body>
 
 </html>
