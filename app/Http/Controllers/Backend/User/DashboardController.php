@@ -263,7 +263,7 @@ class DashboardController extends Controller
 
     public function history()
     {
-        $dataHistory = HistoryTransaction::where('user_create', Auth::guard('web')->user()->id)->get();
+        $dataHistory = HistoryTransaction::where('user_create', Auth::guard('web')->user()->id)->latest()->get();
         return view('pages.user.history', compact('dataHistory'));
     }
 
