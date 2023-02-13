@@ -22,6 +22,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use ZipArchive;
 use File;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Session;
 use Zip;
 
@@ -48,7 +49,8 @@ class DashboardController extends Controller
 
         $this->validate($request, [
             'unit'                  => 'required',
-            'kuota'                 => 'required|integer',
+            'kuota'                 => 'required|integer|min:1',
+            'kuotaTiket'            => 'required|integer|min:1',
             'dateStart'             => 'required|date',
             'dateEnd'               => 'required|date|after_or_equal:dateStart',
             // 'g-recaptcha-response'  => 'required|captcha',
@@ -269,6 +271,60 @@ class DashboardController extends Controller
 
     public function downloadHistory($id)
     {
-        dd($id);
+        $kode = array();
+
+        $data = HistoryTransaction::where('id', Crypt::decryptString($id))->get();
+        $dataSingle = HistoryTransaction::findOrFail(Crypt::decryptString($id));
+
+        foreach ($data as $d) {
+            // $kode[] = $d->kode;
+            array_push($kode, $d->kode);
+        }
+
+        $countArray = count($kode[0]);
+
+        $filename = "Reservasi Tiket.zip";
+        $zip = new ZipArchive();
+
+        for ($i = 0; $i < $countArray; $i++) {
+            // echo $kode[0][$i] . '<br>';
+
+            $pdf = PDF::loadview('barcode.card', [
+                'value'         => $kode[0][$i],
+                'dateVisit'     => $dataSingle->tgl_mulai,
+                'quotaPeople'   => $dataSingle->jumlah_org_per_tiket,
+                'quotaVenicle'  => $dataSingle->jumlah_kendaraan_per_tiket,
+            ]);
+
+            $outputPDF = $pdf->output();
+            if ($zip->open($filename, ZIPARCHIVE::CREATE) == TRUE) {
+                $zip->addFromString('Tiket-' . $kode[0][$i] . ".pdf", $outputPDF);
+                $zip->close();
+            }
+        }
+
+        // foreach ($kode as $key => $value) {
+        //     echo $kode[0][$key];
+        //     $pdf = PDF::loadview('barcode.card', [
+        //         'value'         => $value,
+        //         'dateVisit'     => session()->get('dateTransaksi'),
+        //         'quotaPeople'   => session()->get('quotaPeople'),
+        //         'quotaVenicle'  => session()->get('quotaVenicle'),
+        //     ]);
+
+        //     $outputPDF = $pdf->output();
+        //     if ($zip->open($filename, ZIPARCHIVE::CREATE) == TRUE) {
+        //         $zip->addFromString('Tiket-' . $value . ".pdf", $outputPDF);
+        //         $zip->close();
+        //     }
+        // }
+
+        header("Content-Type: application/zip");
+        header("Content-Disposition: attachment; filename=\"" . $filename . "\"");
+        clearstatcache();
+
+        header("Content-Length: " . filesize($filename));
+        readfile($filename);
+        unlink($filename);
     }
 }
