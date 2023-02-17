@@ -223,38 +223,26 @@
         <ol>
             @if (str_contains($value, 'SW'))
                 <li>Sea World</li>
-            @else
-                <li>---</li>
             @endif
 
             @if (str_contains($value, 'DF'))
                 <li>Dunia Fantasi</li>
-            @else
-                <li>---</li>
             @endif
 
             @if (str_contains($value, 'PG'))
                 <li>PGU Ancol</li>
-            @else
-                <li>---</li>
             @endif
 
             @if (str_contains($value, 'OD'))
                 <li>Ocean Dream Samudra</li>
-            @else
-                <li>---</li>
             @endif
 
             @if (str_contains($value, 'AW'))
                 <li>Atlantis Water Adventures</li>
-            @else
-                <li>---</li>
             @endif
 
             @if (str_contains($value, 'JB'))
                 <li>Jakarta Bird Land</li>
-            @else
-                <li>---</li>
             @endif
         </ol>
     </div>
