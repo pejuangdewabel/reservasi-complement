@@ -24,6 +24,7 @@ use ZipArchive;
 use File;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Storage;
 use Zip;
 
 class DashboardController extends Controller
@@ -189,10 +190,74 @@ class DashboardController extends Controller
         return redirect()->back()->with('success', 'Reservasi Berhasil')->with('loader', true);
     }
 
-    public function downloadBarcode($id)
+    public function downloadBarcode()
     {
-        $pdf = PDF::loadview('barcode.card');
-        return $pdf->download('invoice.pdf');
+        // Generate PDF files
+
+        $kode = array(
+            '1212121',
+            '2091092',
+            '9209129'
+        );
+
+        foreach ($kode as $k) {
+            $pdf = PDF::loadview('barcode.card', [
+                'value'         => $k,
+                'dateVisit'     => '2023-02-17',
+                'quotaPeople'   => 10,
+                'quotaVenicle'  => 2,
+            ]);
+            Storage::put('pdf/file' . $k . '.pdf', $pdf->output());
+        }
+
+        // Create zip file
+        $zip = new ZipArchive;
+        $zipFileName = 'pdf_files.zip';
+
+        if ($zip->open(storage_path($zipFileName), ZipArchive::CREATE) === TRUE) {
+            // Add PDF files to the zip file
+            foreach ($kode as $k) {
+                $zip->addFile(storage_path('app/pdf/file' . $k . '.pdf'), 'file' . $k . '.pdf');
+            }
+            $zip->close();
+        }
+
+        // Download the zip file
+        return response()->download(storage_path($zipFileName));
+
+
+        // foreach ($kode as $k) {
+        //     // Membuat PDF
+        //     $pdf = PDF::loadview('barcode.card', [
+        //         'value'         => $k,
+        //         'dateVisit'     => '2023-02-17',
+        //         'quotaPeople'   => 10,
+        //         'quotaVenicle'  => 2,
+        //     ]);
+        //     $pdfContents = $pdf->output();
+
+        //     // Menyimpan PDF ke dalam penyimpanan Laravel
+        //     $pdfFileName = 'example.pdf';
+        //     Storage::put($pdfFileName, $pdfContents);
+
+        //     // Membuat Zip Archive
+        //     $zip = new ZipArchive;
+        //     $zipFileName = 'example123.zip';
+
+        //     if ($zip->open(storage_path($zipFileName), ZipArchive::CREATE) === true) {
+        //         // Menambahkan PDF ke dalam Zip Archive
+        //         $zip->addFromString($pdfFileName, $pdfContents);
+
+        //         // Menutup Zip Archive
+        //         $zip->close();
+        //     }
+
+        //     // Menghapus PDF dari penyimpanan Laravel
+        //     Storage::delete($pdfFileName);
+
+        //     // Mengirimkan Zip Archive sebagai respons HTTP
+        //     return response()->download(storage_path($zipFileName))->deleteFileAfterSend();
+        // }
     }
 
     public function backReservasion()
@@ -228,39 +293,68 @@ class DashboardController extends Controller
     {
         $kode = array();
 
-        $customPaper = array(0, 0, 425.19, 283.80);
-        $customPaper = array(0, 0, 960.09, 540);
-        $filename = "Reservasi Tiket.zip";
-        $zip = new ZipArchive();
+        $zip = new ZipArchive;
+        $zipFileName = 'Generate Tiket-' . Carbon::now()->timestamp . '.zip';
 
         $kode = session()->get('codeTicket');
 
         foreach ($kode as $key => $value) {
-            // $pdf = PDF::loadview('pages.user.ticket', [
-            //     'value' => $value
-            // ])->setPaper($customPaper, 'landscape');
-
             $pdf = PDF::loadview('barcode.card', [
                 'value'         => $value,
                 'dateVisit'     => session()->get('dateTransaksi'),
                 'quotaPeople'   => session()->get('quotaPeople'),
                 'quotaVenicle'  => session()->get('quotaVenicle'),
             ]);
-
-            $outputPDF = $pdf->output();
-            if ($zip->open($filename, ZIPARCHIVE::CREATE) == TRUE) {
-                $zip->addFromString('Tiket-' . $value . ".pdf", $outputPDF);
-                $zip->close();
-            }
+            Storage::put('pdf/Tiket-' . $value . '.pdf', $pdf->output());
         }
 
-        header("Content-Type: application/zip");
-        header("Content-Disposition: attachment; filename=\"" . $filename . "\"");
-        clearstatcache();
+        if ($zip->open(storage_path($zipFileName), ZipArchive::CREATE) === TRUE) {
+            // Add PDF files to the zip file
+            foreach ($kode as $key => $value) {
+                $zip->addFile(storage_path('app/pdf/Tiket-' . $value . '.pdf'), 'Tiket-' . $value . '.pdf');
+            }
+            $zip->close();
+        }
 
-        header("Content-Length: " . filesize($filename));
-        readfile($filename);
-        unlink($filename);
+        // Download the zip file
+        return response()->download(storage_path($zipFileName));
+
+
+        // $kode = array();
+
+        // $customPaper = array(0, 0, 425.19, 283.80);
+        // $customPaper = array(0, 0, 960.09, 540);
+        // $filename = "Tiket.zip";
+        // $zip = new ZipArchive();
+
+        // $kode = session()->get('codeTicket');
+
+        // foreach ($kode as $key => $value) {
+        //     // $pdf = PDF::loadview('pages.user.ticket', [
+        //     //     'value' => $value
+        //     // ])->setPaper($customPaper, 'landscape');
+
+        //     $pdf = PDF::loadview('barcode.card', [
+        //         'value'         => $value,
+        //         'dateVisit'     => session()->get('dateTransaksi'),
+        //         'quotaPeople'   => session()->get('quotaPeople'),
+        //         'quotaVenicle'  => session()->get('quotaVenicle'),
+        //     ]);
+
+        //     $outputPDF = $pdf->output();
+        //     if ($zip->open($filename, ZIPARCHIVE::CREATE) == TRUE) {
+        //         $zip->addFromString('Tiket-' . $value . ".pdf", $outputPDF);
+        //         $zip->close();
+        //     }
+        // }
+
+        // header("Content-Type: application/zip");
+        // header("Content-Disposition: attachment; filename=\"" . $filename . "\"");
+        // clearstatcache();
+
+        // header("Content-Length: " . filesize($filename));
+        // readfile($filename);
+        // unlink($filename);
     }
 
     public function history()
@@ -283,48 +377,58 @@ class DashboardController extends Controller
 
         $countArray = count($kode[0]);
 
-        $filename = "Reservasi Tiket.zip";
-        $zip = new ZipArchive();
-
         for ($i = 0; $i < $countArray; $i++) {
-            // echo $kode[0][$i] . '<br>';
-
             $pdf = PDF::loadview('barcode.card', [
                 'value'         => $kode[0][$i],
                 'dateVisit'     => $dataSingle->tgl_mulai,
                 'quotaPeople'   => $dataSingle->jumlah_org_per_tiket,
                 'quotaVenicle'  => $dataSingle->jumlah_kendaraan_per_tiket,
             ]);
-
-            $outputPDF = $pdf->output();
-            if ($zip->open($filename, ZIPARCHIVE::CREATE) == TRUE) {
-                $zip->addFromString('Tiket-' . $kode[0][$i] . ".pdf", $outputPDF);
-                $zip->close();
-            }
+            Storage::put('pdf/Tiket-' . $kode[0][$i] . '.pdf', $pdf->output());
         }
 
-        // foreach ($kode as $key => $value) {
-        //     echo $kode[0][$key];
+        $zip = new ZipArchive;
+        $zipFileName = 'Generate Tiket-' . Carbon::now()->timestamp . '.zip';
+
+        if ($zip->open(storage_path($zipFileName), ZipArchive::CREATE) === TRUE) {
+            // Add PDF files to the zip file
+            for ($i = 0; $i < $countArray; $i++) {
+                $zip->addFile(storage_path('app/pdf/Tiket-' . $kode[0][$i] . '.pdf'), 'Tiket-' . $kode[0][$i] . '.pdf');
+            }
+
+            $zip->close();
+        }
+
+        // Download the zip file
+        return response()->download(storage_path($zipFileName));
+
+
+        // $filename = "Tiket.zip";
+        // $zip = new ZipArchive();
+
+        // for ($i = 0; $i < $countArray; $i++) {
+        //     // echo $kode[0][$i] . '<br>';
+
         //     $pdf = PDF::loadview('barcode.card', [
-        //         'value'         => $value,
-        //         'dateVisit'     => session()->get('dateTransaksi'),
-        //         'quotaPeople'   => session()->get('quotaPeople'),
-        //         'quotaVenicle'  => session()->get('quotaVenicle'),
+        //         'value'         => $kode[0][$i],
+        //         'dateVisit'     => $dataSingle->tgl_mulai,
+        //         'quotaPeople'   => $dataSingle->jumlah_org_per_tiket,
+        //         'quotaVenicle'  => $dataSingle->jumlah_kendaraan_per_tiket,
         //     ]);
 
         //     $outputPDF = $pdf->output();
         //     if ($zip->open($filename, ZIPARCHIVE::CREATE) == TRUE) {
-        //         $zip->addFromString('Tiket-' . $value . ".pdf", $outputPDF);
+        //         $zip->addFromString('Tiket-' . $kode[0][$i] . ".pdf", $outputPDF);
         //         $zip->close();
         //     }
         // }
 
-        header("Content-Type: application/zip");
-        header("Content-Disposition: attachment; filename=\"" . $filename . "\"");
-        clearstatcache();
+        // header("Content-Type: application/zip");
+        // header("Content-Disposition: attachment; filename=\"" . $filename . "\"");
+        // clearstatcache();
 
-        header("Content-Length: " . filesize($filename));
-        readfile($filename);
-        unlink($filename);
+        // header("Content-Length: " . filesize($filename));
+        // readfile($filename);
+        // unlink($filename);
     }
 }

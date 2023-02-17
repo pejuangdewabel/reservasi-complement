@@ -1,7 +1,11 @@
 <?php
 
+use App\Model\HotelPGU;
 use App\Model\JenisTiketReffDufan;
 use App\Model\JenisTiketReffSW;
+use App\Model\KodeScanDufan;
+use App\Model\KodeScanODS;
+use App\Model\KodeScanSW;
 use App\Model\User;
 use Illuminate\Support\Facades\Route;
 
@@ -35,7 +39,7 @@ Route::group(['prefix' => 'index', 'middleware' => 'auth'], function () {
     Route::get('/', 'Backend\User\DashboardController@index')->name('dashboard-user');
     Route::post('/reservation', 'Backend\User\DashboardController@reservation')->name('reservation');
     Route::get('/back-reservasion', 'Backend\User\DashboardController@backReservasion')->name('backReservasion');
-    Route::get('/download-barcode/{id}', 'Backend\User\DashboardController@downloadBarcode')->name('downloadBarcode');
+    Route::get('/download-barcode', 'Backend\User\DashboardController@downloadBarcode')->name('downloadBarcode');
     Route::get('/profile', 'Backend\User\DashboardController@profile')->name('profile-user');
     Route::get('/riwayat', 'Backend\User\DashboardController@history')->name('history-transaction-user');
     Route::post('/changeProfile', 'Backend\User\DashboardController@changeProfile')->name('changeProfile');
@@ -47,8 +51,5 @@ Route::group(['prefix' => 'index', 'middleware' => 'auth'], function () {
 Route::get('/download', 'Auth\AuthController@generateDownload')->name('download');
 
 Route::get('/testing', function () {
-    return view('barcode.card', [
-        'value' => 'dadadaddwew2',
-        'dateVisit' => '2023/01/12'
-    ]);
+    return response()->json(HotelPGU::take(2)->get());
 })->name('testing');

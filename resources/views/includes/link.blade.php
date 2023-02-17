@@ -21,7 +21,8 @@
 <link href="{{ asset('assets/css/style.css') }}" rel="stylesheet">
 <style>
     .pageLoader {
-        background: url('/assets/img/loader2.gif') no-repeat center center;
+        /* /assets/img/loader2.gif */
+        background: url('{{ asset('assets/img/loader2.gif') }}') no-repeat center center;
         position: fixed;
         top: 0;
         left: 0;
