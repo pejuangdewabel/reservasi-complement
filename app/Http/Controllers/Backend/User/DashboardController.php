@@ -64,20 +64,29 @@ class DashboardController extends Controller
         $jenisid = array();
 
         for ($i = 0; $i < $request->kuota; $i++) {
-            $getUnit = implode("", $request->unit);
-            $countUnit = count($request->unit);
 
-            $timeStamp = Carbon::now()->timestamp;
-            $length = 6;
-            $randomLetterNumber = substr(str_shuffle("CFHJKLMNPQRTVWXYZ123456789"), 0, $length);
+            do {
+                $getUnit = implode("", $request->unit);
+                $countUnit = count($request->unit);
 
-            $lengthDigit = 12 - ($countUnit * 2);
-            if ($lengthDigit != 0) {
-                $randomNumber = substr(str_shuffle("1234567890"), 0, $lengthDigit);
-                $generatekode = 'SG' . $randomLetterNumber . $getUnit . $randomNumber;
-            } elseif ($lengthDigit == 0) {
-                $generatekode = 'SG' . $randomLetterNumber . $getUnit;
-            }
+                $length = 6;
+                $randomLetterNumber = substr(str_shuffle("CFHJKLMNPQRTVWXYZ123456789"), 0, $length);
+
+                $lengthDigit = 12 - ($countUnit * 2);
+                if ($lengthDigit != 0) {
+                    $randomNumber = substr(str_shuffle("1234567890"), 0, $lengthDigit);
+                    $generatekode = 'SG' . $randomLetterNumber . $getUnit . $randomNumber;
+                } elseif ($lengthDigit == 0) {
+                    $generatekode = 'SG' . $randomLetterNumber . $getUnit;
+                }
+
+                $seaworld = KodeScanSW::where('kode', $generatekode)->exists();
+                $awa = KodeScanAWA::where('kode', $generatekode)->exists();
+                $jbl = KodeScanJBL::where('kode', $generatekode)->exists();
+                $ods = KodeScanODS::where('kode', $generatekode)->exists();
+                $dufan = KodeScanDufan::where('kode', $generatekode)->exists();
+                $hotel = HotelPGU::where('guestCode', $generatekode)->exists();
+            } while ($seaworld and $awa and $jbl and $ods and $dufan and $hotel);
 
             $codeAll[] = $generatekode;
 
@@ -298,63 +307,39 @@ class DashboardController extends Controller
 
         $kode = session()->get('codeTicket');
 
-        foreach ($kode as $key => $value) {
-            $pdf = PDF::loadview('barcode.card', [
-                'value'         => $value,
-                'dateVisit'     => session()->get('dateTransaksi'),
-                'quotaPeople'   => session()->get('quotaPeople'),
-                'quotaVenicle'  => session()->get('quotaVenicle'),
-            ]);
-            Storage::put('pdf/Tiket-' . $value . '.pdf', $pdf->output());
-        }
-
-        if ($zip->open(storage_path($zipFileName), ZipArchive::CREATE) === TRUE) {
-            // Add PDF files to the zip file
+        if (count($kode) == 1) {
             foreach ($kode as $key => $value) {
-                $zip->addFile(storage_path('app/pdf/Tiket-' . $value . '.pdf'), 'Tiket-' . $value . '.pdf');
+                $pdf = PDF::loadview('barcode.card', [
+                    'value'         => $value,
+                    'dateVisit'     => session()->get('dateTransaksi'),
+                    'quotaPeople'   => session()->get('quotaPeople'),
+                    'quotaVenicle'  => session()->get('quotaVenicle'),
+                ]);
+                // Storage::put('pdf/Tiket-' . $value . '.pdf', $pdf->output());
+                return $pdf->download('Tiket-' . $value . '.pdf');
             }
-            $zip->close();
+        } elseif (count($kode) > 1) {
+            foreach ($kode as $key => $value) {
+                $pdf = PDF::loadview('barcode.card', [
+                    'value'         => $value,
+                    'dateVisit'     => session()->get('dateTransaksi'),
+                    'quotaPeople'   => session()->get('quotaPeople'),
+                    'quotaVenicle'  => session()->get('quotaVenicle'),
+                ]);
+                Storage::put('pdf/Tiket-' . $value . '.pdf', $pdf->output());
+            }
+
+            if ($zip->open(storage_path($zipFileName), ZipArchive::CREATE) === TRUE) {
+                // Add PDF files to the zip file
+                foreach ($kode as $key => $value) {
+                    $zip->addFile(storage_path('app/pdf/Tiket-' . $value . '.pdf'), 'Tiket-' . $value . '.pdf');
+                }
+                $zip->close();
+            }
+
+            // Download the zip file
+            return response()->download(storage_path($zipFileName));
         }
-
-        // Download the zip file
-        return response()->download(storage_path($zipFileName));
-
-
-        // $kode = array();
-
-        // $customPaper = array(0, 0, 425.19, 283.80);
-        // $customPaper = array(0, 0, 960.09, 540);
-        // $filename = "Tiket.zip";
-        // $zip = new ZipArchive();
-
-        // $kode = session()->get('codeTicket');
-
-        // foreach ($kode as $key => $value) {
-        //     // $pdf = PDF::loadview('pages.user.ticket', [
-        //     //     'value' => $value
-        //     // ])->setPaper($customPaper, 'landscape');
-
-        //     $pdf = PDF::loadview('barcode.card', [
-        //         'value'         => $value,
-        //         'dateVisit'     => session()->get('dateTransaksi'),
-        //         'quotaPeople'   => session()->get('quotaPeople'),
-        //         'quotaVenicle'  => session()->get('quotaVenicle'),
-        //     ]);
-
-        //     $outputPDF = $pdf->output();
-        //     if ($zip->open($filename, ZIPARCHIVE::CREATE) == TRUE) {
-        //         $zip->addFromString('Tiket-' . $value . ".pdf", $outputPDF);
-        //         $zip->close();
-        //     }
-        // }
-
-        // header("Content-Type: application/zip");
-        // header("Content-Disposition: attachment; filename=\"" . $filename . "\"");
-        // clearstatcache();
-
-        // header("Content-Length: " . filesize($filename));
-        // readfile($filename);
-        // unlink($filename);
     }
 
     public function history()

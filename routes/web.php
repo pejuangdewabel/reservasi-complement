@@ -1,5 +1,6 @@
 <?php
 
+use App\Model\HistoryTransaction;
 use App\Model\HotelPGU;
 use App\Model\JenisTiketReffDufan;
 use App\Model\JenisTiketReffSW;
@@ -51,5 +52,5 @@ Route::group(['prefix' => 'index', 'middleware' => 'auth'], function () {
 Route::get('/download', 'Auth\AuthController@generateDownload')->name('download');
 
 Route::get('/testing', function () {
-    return response()->json(HotelPGU::take(2)->get());
+
 })->name('testing');
