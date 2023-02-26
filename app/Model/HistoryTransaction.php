@@ -18,7 +18,8 @@ class HistoryTransaction extends Model
         'tgl_berlaku',
         'kendaran',
         'jumlah_kendaraan_per_tiket',
-        'user_create'
+        'user_create',
+        'guestName'
     ];
     protected $casts = [
         'kode'      => 'array',

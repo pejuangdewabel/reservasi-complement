@@ -14,7 +14,7 @@
     <div id="app">
         <div class="pagetitle">
             <h1>Generate Tiket Ancol</h1>
-            <a href="{{ route('downloadBarcode') }}">KLIK</a>
+            {{-- <a href="{{ route('downloadBarcode') }}">KLIK</a> --}}
             {{-- <br>
             <a href="{{ route('backReservasion') }}" class="btn btn-secondary btns-sm">RESET</a> --}}
         </div><!-- End Page Title -->
@@ -150,6 +150,19 @@
                                         <input type="number" name="countVehicle" id="countVehicle" class="form-control"
                                             min="0">
                                         @error('countVehicle')
+                                            <span class="badge bg-danger">
+                                                <i class="bi bi-exclamation-octagon me-1"></i>
+                                                {{ $message }}
+                                            </span>
+                                        @enderror
+                                    </div>
+                                    <div class="col-md-12" id="guestName">
+                                        <label for="guestName" class="form-label">Tiket Diberikan untuk
+                                            <strong class="text-danger">(*Diisi Nama
+                                                Selegram/Influencer/Pengunjung)</strong>
+                                        </label>
+                                        <input type="text" name="guestName" id="guestName" class="form-control">
+                                        @error('guestName')
                                             <span class="badge bg-danger">
                                                 <i class="bi bi-exclamation-octagon me-1"></i>
                                                 {{ $message }}

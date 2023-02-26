@@ -45,15 +45,17 @@ class DashboardController extends Controller
             'min'                   => ':attribute harus diisi minimal digit :min ',
             'max'                   => ':attribute harus diisi maksimal :max karakter',
             'g-recaptcha-response.required'  => 'Captcha wajib diisi',
-            'dateEnd.after_or_equal' => 'Tanggal Akhir Salah'
+            'dateEnd.after_or_equal' => 'Tanggal Akhir Salah',
+            'guestName.required'    => 'Nama Selegram/Influencer/Pengunjung Wajib Diisi'
         ];
 
         $this->validate($request, [
             'unit'                  => 'required',
             'kuota'                 => 'required|integer|min:1',
-            'kuotaTiket'            => 'required|integer|min:1',
+            'kuotaTiket'            => 'required|integer|min:0',
             'dateStart'             => 'required|date',
             'dateEnd'               => 'required|date|after_or_equal:dateStart',
+            'guestName'             => 'required|string'
             // 'g-recaptcha-response'  => 'required|captcha',
         ], $messages);
 
@@ -193,7 +195,8 @@ class DashboardController extends Controller
             'tgl_berlaku'                   => $request->dateEnd,
             'kendaran'                      => $request->vehicle,
             'jumlah_kendaraan_per_tiket'    => $request->countVehicle,
-            'user_create'                   => Auth::guard('web')->user()->id
+            'user_create'                   => Auth::guard('web')->user()->id,
+            'guestName'                     => $request->guestName
         );
         HistoryTransaction::create($dataHistory);
         return redirect()->back()->with('success', 'Reservasi Berhasil')->with('loader', true);
