@@ -36,6 +36,7 @@
                                         <th scope="col">Tanggal Berlaku</th>
                                         <th scope="col">Jenis Kendaraan</th>
                                         <th scope="col">Jumlah Kendaraan</th>
+                                        <th scope="col">Pengunjung</th>
                                         <th scope="col">Download Tiket</th>
                                     </tr>
                                 </thead>
@@ -72,6 +73,13 @@
                                                 {{ tanggal_indonesia($dH->tgl_berlaku) }}</td>
                                             <td>{{ $dH->kendaran ? $dH->kendaran : '---' }}</td>
                                             <td>{{ $dH->jumlah_kendaraan_per_tiket ? $dH->jumlah_kendaraan_per_tiket : '---' }}
+                                            </td>
+                                            <td>
+                                                @if ($dH->guestName)
+                                                    {{ $dH->guestName }}
+                                                @else
+                                                    ---
+                                                @endif
                                             </td>
                                             <td>
                                                 <a href="{{ route('download-tiket-history', Crypt::encryptString($dH->id)) }}"
