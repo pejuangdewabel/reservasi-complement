@@ -85,9 +85,9 @@ class DashboardController extends Controller
                 $lengthDigit = 12 - ($countUnit * 2);
                 if ($lengthDigit != 0) {
                     $randomNumber = substr(str_shuffle("1234567890"), 0, $lengthDigit);
-                    $generatekode = $request->jenis . $randomLetterNumber . $getUnit . $randomNumber;
+                    $generatekode = substr($request->jenis, 0, 2) . $randomLetterNumber . $getUnit . $randomNumber;
                 } elseif ($lengthDigit == 0) {
-                    $generatekode = $request->jenis . $randomLetterNumber . $getUnit;
+                    $generatekode = substr($request->jenis, 0, 2) . $randomLetterNumber . $getUnit;
                 }
 
                 $seaworld = KodeScanSW::where('kode', $generatekode)->exists();
