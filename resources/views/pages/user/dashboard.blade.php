@@ -57,12 +57,11 @@
                                     <div class="col-md-6">
                                         <label for="jenis" class="form-label">Pilih Jenis Tiket</label>
                                         <select class="form-select js-example-basic-single" name="jenis" id="jenis"
-                                            required multiple="multiple" autofocus>
-                                            <option value="SG">SELEBGRAM</option>
-                                            {{-- @foreach ($jenis as $j)
-                                                <option value="{{ $j->jenis_tiket }}">{{ $j->keterangan }} |
-                                                    {{ $j->jenis_tiket }}</option>
-                                            @endforeach --}}
+                                            required autofocus>
+                                            <option selected disabled></option>
+                                            @foreach ($jenisTiket as $j)
+                                                <option value="{{ $j->kode }}">{{ $j->keterangan }}</option>
+                                            @endforeach
                                         </select>
                                         @error('jenis')
                                             <span class="badge bg-danger">

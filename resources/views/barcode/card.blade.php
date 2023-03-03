@@ -214,7 +214,7 @@
         {{ $value }}
     </div>
     <div class="judul">
-        INFLUENCER
+        {{ $nameTypeTicket }}
     </div>
     <div class="judul2">
         AKSES MASUK

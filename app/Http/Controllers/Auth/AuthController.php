@@ -133,6 +133,11 @@ class AuthController extends Controller
     public function logout()
     {
         session()->forget('codeTicket');
+        session()->forget('dateTransaksi');
+        session()->forget('quotaPeople');
+        session()->forget('quotaVenicle');
+        session()->forget('typeTicket');
+
         if (Auth::guard('web')->check()) {
             Auth::guard('web')->logout();
         }

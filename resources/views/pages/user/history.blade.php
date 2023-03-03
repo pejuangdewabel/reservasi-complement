@@ -29,6 +29,7 @@
                                     <tr>
                                         <th scope="col">#</th>
                                         <th scope="col">Jenis Tiket</th>
+                                        <th scope="col">Kode Jenis Tiket</th>
                                         <th scope="col">Kode Tiket</th>
                                         <th scope="col">Unit</th>
                                         <th scope="col">Tiket</th>
@@ -44,6 +45,13 @@
                                     @forelse ($dataHistory as $dH)
                                         <tr>
                                             <th scope="row">{{ $loop->iteration }}</th>
+                                            <th>
+                                                @if ($dH->relasi_tiket_jenis)
+                                                    {{ $dH->relasi_tiket_jenis->keterangan }}
+                                                @else
+                                                    ---
+                                                @endif
+                                            </th>
                                             <td>
                                                 @foreach ($dH->jenisid as $key => $value)
                                                     | {{ $value }}

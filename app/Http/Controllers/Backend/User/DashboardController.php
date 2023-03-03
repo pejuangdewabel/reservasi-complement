@@ -4,8 +4,11 @@ namespace App\Http\Controllers\Backend\User;
 
 use App\Http\Controllers\Controller;
 use App\Jobs\GeneratePDFtoZIP;
+use App\Model\DetailJenisTiket;
 use App\Model\HistoryTransaction;
 use App\Model\HotelPGU;
+use App\Model\JenisTiket;
+use App\Model\JenisTiketReffComplement;
 use App\Model\JenisTiketReffSW;
 use App\Model\KodeScanAWA;
 use App\Model\KodeScanDufan;
@@ -33,12 +36,17 @@ class DashboardController extends Controller
     {
         $unit = Unit::get();
         $jenis = JenisTiketReffSW::all();
-        return view('pages.user.dashboard', compact('unit', 'jenis'));
+        $jenisTiket = JenisTiket::get();
+        return view('pages.user.dashboard', compact('unit', 'jenis', 'jenisTiket'));
     }
 
     public function reservation(Request $request)
     {
         session()->forget('codeTicket');
+        session()->forget('dateTransaksi');
+        session()->forget('quotaPeople');
+        session()->forget('quotaVenicle');
+        session()->forget('typeTicket');
 
         $messages = [
             'required'              => ':attribute wajib diisi',
@@ -77,9 +85,9 @@ class DashboardController extends Controller
                 $lengthDigit = 12 - ($countUnit * 2);
                 if ($lengthDigit != 0) {
                     $randomNumber = substr(str_shuffle("1234567890"), 0, $lengthDigit);
-                    $generatekode = 'SG' . $randomLetterNumber . $getUnit . $randomNumber;
+                    $generatekode = $request->jenis . $randomLetterNumber . $getUnit . $randomNumber;
                 } elseif ($lengthDigit == 0) {
-                    $generatekode = 'SG' . $randomLetterNumber . $getUnit;
+                    $generatekode = $request->jenis . $randomLetterNumber . $getUnit;
                 }
 
                 $seaworld = KodeScanSW::where('kode', $generatekode)->exists();
@@ -93,7 +101,6 @@ class DashboardController extends Controller
             $codeAll[] = $generatekode;
 
             $data = array(
-                'no_referensi'  => 'SELEBGRAM',
                 'kode'          => $generatekode,
                 'mulai_berlaku' => $request->dateStart . ' 00:00:00',
                 'akhir_berlaku' => $request->dateEnd . ' 23:59:59',
@@ -106,15 +113,27 @@ class DashboardController extends Controller
 
             foreach ($unit as $u) {
                 foreach ($request->unit as $du => $value) {
+                    $kodeJenis = DetailJenisTiket::with(['relasi_unit', 'relasi_jenis_tiket'])
+                        ->where('unit_id', $u->id)
+                        ->where('kode_jenis_tiket', $request->jenis)
+                        ->first();
                     if ($u->kode == $value and $value == "SW") {
-                        $data['jenis_tiket'] = 372;
+                        $data['no_referensi'] = $kodeJenis->relasi_jenis_tiket->keterangan;
+                        $data['jenis_tiket'] = $kodeJenis->kode_jenis;
                         KodeScanSW::create($data);
-                        $jenisid['SW'] = 372;
+                        $jenisid['SW'] = $kodeJenis->kode_jenis;
+
+                        // $jenisid['SW'] = $kodeJenis->kode_jenis;
                         // echo "SW";
                     } elseif ($u->kode == $value and $value == "DF") {
-                        $data['jenis_tiket'] = 245;
+                        $data['no_referensi'] = $kodeJenis->relasi_jenis_tiket->keterangan;
+                        $data['jenis_tiket'] = $kodeJenis->kode_jenis;
                         KodeScanDufan::create($data);
-                        $jenisid['DF'] = 245;
+                        $jenisid['DF'] = $kodeJenis->kode_jenis;
+
+                        // $data['jenis_tiket'] = 245;
+                        // KodeScanDufan::create($data);
+                        // $jenisid['DF'] = 245;
                         // echo "DF";
                     } elseif ($u->kode == $value and $value == "PG") {
                         if ($request->vehicle != 0) {
@@ -129,12 +148,14 @@ class DashboardController extends Controller
                             $kendaraan = $request->countVehicle;
                         }
 
+                        $checkJenis = JenisTiket::where('kode', $request->jenis)->first();
+
                         $dataPGU = array(
                             'hotelID'           => 5,
                             'guestCode'         =>  $generatekode,
                             'guestPemohon'      => Auth::guard('web')->user()->nama,
-                            'guestName'         => 'Influencer',
-                            'guestInstansi'     => 'Influencer',
+                            'guestName'         => $request->guestName,
+                            'guestInstansi'     => $checkJenis->keterangan,
                             'guestJumlah'       => $request->kuotaTiket,
                             'guestTujuan'       => 'MASUK PGU',
                             'guestKeperluan'    => '---',
@@ -164,17 +185,33 @@ class DashboardController extends Controller
                         HotelPGU::create($dataPGU);
                         $jenisid['PGU'] = "CARD-080";
                     } elseif ($u->kode == $value and $value == "OD") {
-                        $data['jenis_tiket'] = 353;
+                        $data['no_referensi'] = $kodeJenis->relasi_jenis_tiket->keterangan;
+                        $data['jenis_tiket'] = $kodeJenis->kode_jenis;
                         KodeScanODS::create($data);
-                        $jenisid['ODS'] = 353;
+                        $jenisid['ODS'] = $kodeJenis->kode_jenis;
+
+                        // $data['jenis_tiket'] = 353;
+                        // KodeScanODS::create($data);
+                        // $jenisid['ODS'] = 353;
                     } elseif ($u->kode == $value and $value == "AW") {
-                        $data['jenis_tiket'] = 216;
+                        $data['no_referensi'] = $kodeJenis->relasi_jenis_tiket->keterangan;
+                        $data['jenis_tiket'] = $kodeJenis->kode_jenis;
                         KodeScanAWA::create($data);
-                        $jenisid['AWA'] = 216;
+                        $jenisid['AWA'] = $kodeJenis->kode_jenis;
+
+                        // $data['jenis_tiket'] = 216;
+                        // KodeScanAWA::create($data);
+                        // $jenisid['AWA'] = 216;
                     } elseif ($u->kode == $value and $value == "JB") {
-                        $data['jenis_tiket'] = 24;
+                        $data['no_referensi'] = $kodeJenis->relasi_jenis_tiket->keterangan;
+                        $data['jenis_tiket'] = $kodeJenis->kode_jenis;
                         KodeScanJBL::create($data);
-                        $jenisid['JBL'] = 24;
+                        $jenisid['JBL'] = $kodeJenis->kode_jenis;
+
+
+                        // $data['jenis_tiket'] = 24;
+                        // KodeScanJBL::create($data);
+                        // $jenisid['JBL'] = 24;
                     }
                 }
             }
@@ -184,9 +221,11 @@ class DashboardController extends Controller
         session()->put('dateTransaksi', $request->dateStart);
         session()->put('quotaPeople', $request->kuotaTiket);
         session()->put('quotaVenicle', $request->countVehicle);
+        session()->put('typeTicket', $request->jenis);
 
         $dataHistory = array(
             'jenisid'                       => $jenisid,
+            'kode_jenis_tiket'              => $request->jenis,
             'kode'                          => $codeAll,
             'unit'                          => $request->unit,
             'jumlah_tiket'                  => $request->kuota,
@@ -309,14 +348,17 @@ class DashboardController extends Controller
         $zipFileName = 'Generate Tiket-' . Carbon::now()->timestamp . '.zip';
 
         $kode = session()->get('codeTicket');
+        $nameTypeTicket = JenisTiket::where('kode', session()->get('typeTicket'))->first();
 
         if (count($kode) == 1) {
             foreach ($kode as $key => $value) {
+
                 $pdf = PDF::loadview('barcode.card', [
                     'value'         => $value,
                     'dateVisit'     => session()->get('dateTransaksi'),
                     'quotaPeople'   => session()->get('quotaPeople'),
                     'quotaVenicle'  => session()->get('quotaVenicle'),
+                    'nameTypeTicket'    => $nameTypeTicket->keterangan,
                 ]);
                 // Storage::put('pdf/Tiket-' . $value . '.pdf', $pdf->output());
                 return $pdf->download('Tiket-' . $value . '.pdf');
@@ -328,6 +370,7 @@ class DashboardController extends Controller
                     'dateVisit'     => session()->get('dateTransaksi'),
                     'quotaPeople'   => session()->get('quotaPeople'),
                     'quotaVenicle'  => session()->get('quotaVenicle'),
+                    'nameTypeTicket'    => $nameTypeTicket->keterangan,
                 ]);
                 Storage::put('pdf/Tiket-' . $value . '.pdf', $pdf->output());
             }
@@ -347,7 +390,8 @@ class DashboardController extends Controller
 
     public function history()
     {
-        $dataHistory = HistoryTransaction::where('user_create', Auth::guard('web')->user()->id)->latest()->get();
+        $dataHistory = HistoryTransaction::with(['relasi_tiket_jenis'])->where('user_create', Auth::guard('web')->user()->id)->latest()->get();
+
         return view('pages.user.history', compact('dataHistory'));
     }
 
@@ -356,7 +400,7 @@ class DashboardController extends Controller
         $kode = array();
 
         $data = HistoryTransaction::where('id', Crypt::decryptString($id))->get();
-        $dataSingle = HistoryTransaction::findOrFail(Crypt::decryptString($id));
+        $dataSingle = HistoryTransaction::with(['relasi_tiket_jenis'])->where('id', Crypt::decryptString($id))->first();
 
         foreach ($data as $d) {
             // $kode[] = $d->kode;
@@ -372,6 +416,7 @@ class DashboardController extends Controller
                     'dateVisit'     => $dataSingle->tgl_mulai,
                     'quotaPeople'   => $dataSingle->jumlah_org_per_tiket,
                     'quotaVenicle'  => $dataSingle->jumlah_kendaraan_per_tiket,
+                    'nameTypeTicket'    => $dataSingle->relasi_tiket_jenis->keterangan,
                 ]);
                 // Storage::put('pdf/Tiket-' . $kode[0][$i] . '.pdf', $pdf->output());
                 return $pdf->download('Tiket-' . $kode[0][$i] . '.pdf');
@@ -383,6 +428,7 @@ class DashboardController extends Controller
                     'dateVisit'     => $dataSingle->tgl_mulai,
                     'quotaPeople'   => $dataSingle->jumlah_org_per_tiket,
                     'quotaVenicle'  => $dataSingle->jumlah_kendaraan_per_tiket,
+                    'nameTypeTicket'    => $dataSingle->relasi_tiket_jenis->keterangan,
                 ]);
                 Storage::put('pdf/Tiket-' . $kode[0][$i] . '.pdf', $pdf->output());
             }
