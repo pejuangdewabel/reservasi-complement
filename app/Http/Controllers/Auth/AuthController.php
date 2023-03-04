@@ -137,6 +137,7 @@ class AuthController extends Controller
         session()->forget('quotaPeople');
         session()->forget('quotaVenicle');
         session()->forget('typeTicket');
+        session()->forget('dateEndTransaksi');
 
         if (Auth::guard('web')->check()) {
             Auth::guard('web')->logout();

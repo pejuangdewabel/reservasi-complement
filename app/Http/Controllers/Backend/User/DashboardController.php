@@ -47,6 +47,7 @@ class DashboardController extends Controller
         session()->forget('quotaPeople');
         session()->forget('quotaVenicle');
         session()->forget('typeTicket');
+        session()->forget('dateEndTransaksi');
 
         $messages = [
             'required'              => ':attribute wajib diisi',
@@ -219,6 +220,7 @@ class DashboardController extends Controller
 
         session()->put('codeTicket', $codeAll);
         session()->put('dateTransaksi', $request->dateStart);
+        session()->put('dateEndTransaksi', $request->dateEnd);
         session()->put('quotaPeople', $request->kuotaTiket);
         session()->put('quotaVenicle', $request->countVehicle);
         session()->put('typeTicket', $request->jenis);
@@ -356,6 +358,7 @@ class DashboardController extends Controller
                 $pdf = PDF::loadview('barcode.card', [
                     'value'         => $value,
                     'dateVisit'     => session()->get('dateTransaksi'),
+                    'dateEnd'       => session()->get('dateEndTransaksi'),
                     'quotaPeople'   => session()->get('quotaPeople'),
                     'quotaVenicle'  => session()->get('quotaVenicle'),
                     'nameTypeTicket'    => $nameTypeTicket->keterangan,
@@ -368,6 +371,7 @@ class DashboardController extends Controller
                 $pdf = PDF::loadview('barcode.card', [
                     'value'         => $value,
                     'dateVisit'     => session()->get('dateTransaksi'),
+                    'dateEnd'       => session()->get('dateEndTransaksi'),
                     'quotaPeople'   => session()->get('quotaPeople'),
                     'quotaVenicle'  => session()->get('quotaVenicle'),
                     'nameTypeTicket'    => $nameTypeTicket->keterangan,
@@ -414,6 +418,7 @@ class DashboardController extends Controller
                 $pdf = PDF::loadview('barcode.card', [
                     'value'         => $kode[0][$i],
                     'dateVisit'     => $dataSingle->tgl_mulai,
+                    'dateEnd'       => $dataSingle->tgl_berlaku,
                     'quotaPeople'   => $dataSingle->jumlah_org_per_tiket,
                     'quotaVenicle'  => $dataSingle->jumlah_kendaraan_per_tiket,
                     'nameTypeTicket'    => $dataSingle->relasi_tiket_jenis->keterangan,
@@ -426,6 +431,7 @@ class DashboardController extends Controller
                 $pdf = PDF::loadview('barcode.card', [
                     'value'         => $kode[0][$i],
                     'dateVisit'     => $dataSingle->tgl_mulai,
+                    'dateEnd'       => $dataSingle->tgl_berlaku,
                     'quotaPeople'   => $dataSingle->jumlah_org_per_tiket,
                     'quotaVenicle'  => $dataSingle->jumlah_kendaraan_per_tiket,
                     'nameTypeTicket'    => $dataSingle->relasi_tiket_jenis->keterangan,

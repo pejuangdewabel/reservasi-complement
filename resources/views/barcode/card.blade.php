@@ -185,7 +185,7 @@
             top: 830px;
 
             font-family: 'Grenadine MVB Med';
-            font-size: 20px;
+            font-size: 18px;
             line-height: 20px;
 
             color: #FFFDFD;
@@ -252,7 +252,7 @@
     <div class="paragraf1">
         <ol>
             <li>
-                Eticket berlaku pada tanggal {{ tanggal_indonesia($dateVisit) }}
+                Eticket berlaku pada tanggal {{ formatIndonesia($dateVisit) }} - {{ formatIndonesia($dateEnd) }}
             </li>
             @if (Session::has('quotaVenicle'))
                 <li>
